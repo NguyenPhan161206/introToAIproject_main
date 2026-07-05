@@ -1,4 +1,5 @@
 import numpy as np
+import random
 import sys
 import os
 
@@ -9,13 +10,14 @@ from game.alpha_beta import get_best_move
 from game.heuristic import heuristic
 
 
-def generate_training_data(num_games=500, depth=1, output_dir='.'):
+def generate_training_data(num_games=500, depth=1, random_moves=2, output_dir='.'):
     """
     Generate training data via self-play with Minimax + Alpha-Beta.
 
     Args:
         num_games: Number of self-play games
         depth: Minimax search depth (1=fast but noisy, 2=slower but higher quality)
+        random_moves: Number of initial random moves per game (0=no random)
         output_dir: Directory to save .npy files
 
     Note:
@@ -32,7 +34,11 @@ def generate_training_data(num_games=500, depth=1, output_dir='.'):
         while True:
             piece = PLAYER_X if turn % 2 == 0 else PLAYER_O
 
-            move = get_best_move(board, depth=depth, piece=piece, heuristic_func=heuristic)
+            if turn < random_moves:
+                valid_moves = board.get_valid_moves()
+                move = random.choice(valid_moves) if valid_moves else None
+            else:
+                move = get_best_move(board, depth=depth, piece=piece, heuristic_func=heuristic)
             if move is None:
                 break
 
@@ -85,8 +91,11 @@ if __name__ == '__main__':
     parser.add_argument('--num-games', type=int, default=500, help='Number of self-play games')
     parser.add_argument('--depth', type=int, default=1,
                         help='Minimax depth (1=fast, 2=better but slower)')
+    parser.add_argument('--random-moves', type=int, default=2,
+                        help='Number of initial random moves per game (0=no random)')
     args = parser.parse_args()
 
     output_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
-    print(f'Generating {args.num_games} games at depth {args.depth}...')
-    generate_training_data(num_games=args.num_games, depth=args.depth, output_dir=output_dir)
+    print(f'Generating {args.num_games} games at depth {args.depth} with {args.random_moves} random moves...')
+    generate_training_data(num_games=args.num_games, depth=args.depth,
+                           random_moves=args.random_moves, output_dir=output_dir)
