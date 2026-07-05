@@ -5,14 +5,14 @@ const state = {
     board: Array.from({ length: ROWS }, () => Array(COLS).fill(0)),
     gameOver: false,
     winner: null,
-    mode: 'pvai',
+    mode: 'pvai_trad',
     turn: 'player',
-    heuristic: document.getElementById('heuristicSelect')?.value || 'traditional',
     depth: 3,
     scores: { player: 0, ai: 0, draw: 0 },
     moveCount: 0,
     thinking: false,
-    lastMove: null
+    lastMove: null,
+    annAvailable: false
 };
 
 const boardEl = document.getElementById('board');
@@ -23,12 +23,12 @@ const drawScoreEl = document.getElementById('drawScore');
 const thinkingTimeEl = document.getElementById('thinkingTime');
 const moveCountEl = document.getElementById('moveCount');
 const thinkingIndicatorEl = document.getElementById('thinkingIndicator');
-const heuristicSelect = document.getElementById('heuristicSelect');
 const depthSlider = document.getElementById('depthSlider');
 const depthValueEl = document.getElementById('depthValue');
 const newGameBtn = document.getElementById('newGameBtn');
 const aiVsAiBtn = document.getElementById('aiVsAiBtn');
-const modePvaiBtn = document.getElementById('modePvai');
+const modePvaiAnnBtn = document.getElementById('modePvaiAnn');
+const modePvaiTradBtn = document.getElementById('modePvaiTrad');
 const modePvpBtn = document.getElementById('modePvp');
 const aiControlsEl = document.getElementById('aiControls');
 const scoreLabel1El = document.getElementById('scoreLabel1');
@@ -125,10 +125,12 @@ function setThinking(active) {
 
 function updateModeUI() {
     const isPvP = state.mode === 'pvp';
+    const isAnn = state.mode === 'pvai_ann';
 
     aiControlsEl?.classList.toggle('hidden', isPvP);
     aiVsAiBtn?.classList.toggle('hidden', isPvP);
-    modePvaiBtn?.classList.toggle('active', !isPvP);
+    modePvaiAnnBtn?.classList.toggle('active', isAnn);
+    modePvaiTradBtn?.classList.toggle('active', !isPvP && !isAnn);
     modePvpBtn?.classList.toggle('active', isPvP);
 
     if (isPvP) {
@@ -163,7 +165,7 @@ async function handleCellClick(row, col) {
     if (state.gameOver || state.thinking) return;
     if (state.board[row][col] !== 0) return;
 
-    if (state.mode === 'pvai' && state.turn !== 'player') {
+    if (state.mode.startsWith('pvai') && state.turn !== 'player') {
         showError('Đang đến lượt AI');
         return;
     }
@@ -191,7 +193,7 @@ async function handleCellClick(row, col) {
             state.turn = 'none';
             handleGameOver(data);
             setThinking(false);
-        } else if (state.mode === 'pvai') {
+        } else if (state.mode.startsWith('pvai')) {
             state.turn = 'ai';
             updateTurnUI();
             setThinking(false);
@@ -217,10 +219,7 @@ async function makeAIMove() {
         const res = await fetch('/api/ai_move', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                heuristic: state.heuristic,
-                depth: state.depth
-            })
+            body: JSON.stringify({ depth: state.depth })
         });
 
         if (!res.ok) {
@@ -343,8 +342,8 @@ async function runAiVsAi() {
     setGameStatus('AI đang tự đấu...', 'playing');
 
     try {
-        const h1 = heuristicSelect?.value || 'ann';
-        const h2 = h1 === 'ann' ? 'traditional' : 'ann';
+        const h1 = state.annAvailable ? 'ann' : 'traditional';
+        const h2 = 'traditional';
 
         const res = await fetch('/api/ai_vs_ai', {
             method: 'POST',
@@ -439,6 +438,7 @@ async function fetchMode() {
         if (res.ok) {
             const data = await res.json();
             state.mode = data.mode;
+            state.annAvailable = data.ann_available;
             updateModeUI();
         }
     } catch (err) {
@@ -447,10 +447,6 @@ async function fetchMode() {
 }
 
 
-heuristicSelect?.addEventListener('change', (e) => {
-    state.heuristic = e.target.value;
-});
-
 depthSlider?.addEventListener('input', (e) => {
     state.depth = parseInt(e.target.value);
     depthValueEl.textContent = state.depth;
@@ -458,7 +454,8 @@ depthSlider?.addEventListener('input', (e) => {
 
 newGameBtn?.addEventListener('click', resetGame);
 aiVsAiBtn?.addEventListener('click', runAiVsAi);
-modePvaiBtn?.addEventListener('click', () => setMode('pvai'));
+modePvaiAnnBtn?.addEventListener('click', () => setMode('pvai_ann'));
+modePvaiTradBtn?.addEventListener('click', () => setMode('pvai_trad'));
 modePvpBtn?.addEventListener('click', () => setMode('pvp'));
 
 createBoard();

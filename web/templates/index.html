@@ -478,7 +478,8 @@
                 <div class="panel-box">
                     <h3>Chế độ chơi</h3>
                     <div class="mode-selector">
-                        <button class="mode-btn active" id="modePvai">PvAI</button>
+                        <button class="mode-btn active" id="modePvaiAnn" {% if not ann_available %}disabled{% endif %}>PvAI (ANN)</button>
+                        <button class="mode-btn" id="modePvaiTrad">PvAI (Trad)</button>
                         <button class="mode-btn" id="modePvp">PvP</button>
                     </div>
                 </div>
@@ -504,15 +505,7 @@
                 <div id="aiControls">
                     <div class="panel-box">
                         <h3>Cấu hình AI</h3>
-                        <label style="font-size:0.85em; color:#aaa;">Heuristic</label>
-                        <select id="heuristicSelect">
-                            {% if ann_available %}
-                            <option value="ann">ANN (Neural Network)</option>
-                            {% endif %}
-                            <option value="traditional">Truyền thống (Pattern)</option>
-                        </select>
-
-                        <label style="font-size:0.85em; color:#aaa; margin-top:10px; display:block;">Độ sâu Minimax</label>
+                        <label style="font-size:0.85em; color:#aaa;">Độ sâu Minimax</label>
                         <input type="range" id="depthSlider" min="1" max="4" value="3" step="1">
                         <div class="slider-value" id="depthValue">3</div>
                     </div>

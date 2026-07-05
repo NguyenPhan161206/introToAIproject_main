@@ -16,7 +16,7 @@ app = Flask(__name__)
 board = Board()
 game_over = False
 winner = None
-mode = 'pvai'
+mode = 'pvai_trad'
 board_lock = threading.Lock()
 
 ann_predictor = None
@@ -104,7 +104,7 @@ def get_state():
 
 @app.route('/api/mode', methods=['GET'])
 def get_mode():
-    return jsonify({'mode': mode})
+    return jsonify({'mode': mode, 'ann_available': ANN_AVAILABLE})
 
 
 @app.route('/api/set_mode', methods=['POST'])
@@ -115,8 +115,10 @@ def set_mode():
         if not data or 'mode' not in data:
             return jsonify({'error': 'Missing mode field'}), 400
         new_mode = data['mode']
-        if new_mode not in ('pvai', 'pvp'):
-            return jsonify({'error': 'Mode must be pvai or pvp'}), 400
+        if new_mode not in ('pvai_ann', 'pvai_trad', 'pvp'):
+            return jsonify({'error': 'Mode must be pvai_ann, pvai_trad, or pvp'}), 400
+        if new_mode == 'pvai_ann' and not ANN_AVAILABLE:
+            return jsonify({'error': 'ANN model not available'}), 400
         mode = new_mode
         return jsonify({'status': 'ok', 'mode': mode})
 
@@ -135,7 +137,7 @@ def player_move():
 
         current_turn = get_current_turn()
 
-        if mode == 'pvai' and current_turn != PLAYER_X:
+        if mode.startswith('pvai') and current_turn != PLAYER_X:
             return jsonify({'error': 'Not your turn — AI is thinking'}), 400
 
         piece = current_turn
@@ -144,7 +146,7 @@ def player_move():
             return jsonify({'error': 'Cell is already occupied'}), 400
 
         if board.check_win(row, col, piece):
-            if mode == 'pvai':
+            if mode.startswith('pvai'):
                 handle_game_end('player')
             else:
                 handle_game_end('black' if piece == PLAYER_X else 'white')
@@ -158,7 +160,6 @@ def player_move():
 def ai_move():
     global game_over, winner
     data = request.json
-    heuristic_type = data.get('heuristic', 'ann') if ANN_AVAILABLE else 'traditional'
     try:
         depth = int(data.get('depth', 3))
     except (ValueError, TypeError):
@@ -166,6 +167,7 @@ def ai_move():
     if not (1 <= depth <= 4):
         depth = 3
 
+    heuristic_type = 'ann' if mode == 'pvai_ann' else 'traditional'
     h_func = get_heuristic(heuristic_type)
 
     with board_lock:
@@ -212,15 +214,15 @@ def reset():
 @app.route('/api/ai_vs_ai', methods=['POST'])
 def ai_vs_ai():
     data = request.json
-    heuristic1 = data.get('heuristic1', 'ann') if ANN_AVAILABLE else 'traditional'
-    heuristic2 = data.get('heuristic2', 'traditional')
+    h1_type = data.get('heuristic1', 'ann') if ANN_AVAILABLE else 'traditional'
+    h2_type = data.get('heuristic2', 'traditional')
     try:
         depth = int(data.get('depth', 3))
     except (ValueError, TypeError):
         depth = 3
 
-    h1 = get_heuristic(heuristic1)
-    h2 = get_heuristic(heuristic2)
+    h1 = get_heuristic(h1_type)
+    h2 = get_heuristic(h2_type)
 
     b = Board()
     turn = 0
