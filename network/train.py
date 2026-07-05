@@ -94,7 +94,8 @@ def train(data_dir='../data', models_dir='../models', epochs=200, batch_size=128
         model, dummy, onnx_path,
         input_names=['board_input'],
         output_names=['heuristic_score'],
-        dynamic_axes={'board_input': {0: 'batch_size'}}
+        dynamic_axes={'board_input': {0: 'batch_size'}},
+        large_model_threshold=0
     )
     print(f'[Train] ONNX model saved to {onnx_path}')
 
