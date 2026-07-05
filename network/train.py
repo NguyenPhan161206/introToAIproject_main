@@ -7,6 +7,7 @@ from sklearn.preprocessing import StandardScaler
 import joblib
 import os
 import sys
+import onnx
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
@@ -94,9 +95,10 @@ def train(data_dir='../data', models_dir='../models', epochs=200, batch_size=128
         model, dummy, onnx_path,
         input_names=['board_input'],
         output_names=['heuristic_score'],
-        dynamic_axes={'board_input': {0: 'batch_size'}},
-        large_model_threshold=0
+        dynamic_axes={'board_input': {0: 'batch_size'}}
     )
+    model_onnx = onnx.load(onnx_path)
+    onnx.save_model(model_onnx, onnx_path, save_as_external_data=False)
     print(f'[Train] ONNX model saved to {onnx_path}')
 
     scaler_path = os.path.join(models_dir, 'scaler.pkl')
