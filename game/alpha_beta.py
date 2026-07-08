@@ -52,7 +52,7 @@ def minimax(board, depth, alpha, beta, maximizing, piece, heuristic_func):
 
 def get_best_move(board, depth, piece, heuristic_func=None):
     if heuristic_func is None:
-        heuristic_func = heuristic_trad
+        heuristic_func = heuristic_trad 
 
     valid_moves = board.get_valid_moves_nearby(radius=2)
     if not valid_moves:

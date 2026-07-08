@@ -1,0 +1,1 @@
+# file này là để định nghĩa các hàm heuristic cho trò chơi Gomoku. Heuristic là một phương pháp đánh giá vị trí hiện tại của người chơi trên bảng, dựa trên các dòng quân cờ liên tiếp và các ô trống xung quanh chúng. Các hàm trong file này sẽ giúp xác định mức độ ưu thế của người chơi hiện tại so với đối thủ, từ đó hỗ trợ trong việc ra quyết định khi chơi.

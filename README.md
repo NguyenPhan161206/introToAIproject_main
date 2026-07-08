@@ -41,9 +41,11 @@ Mở trình duyệt tại **http://localhost:5000**
 ### 1. Sinh dữ liệu self-play
 
 ```bash
-python3 data/selfplay_data.py --num-games 300 --depth 2 --random-moves 2
+python3 data/selfplay_data.py --num-games 2000 --depth 1 --random-moves 10
 ```
-→ Tạo `data/X_data.npy` + `data/y_data.npy`
+→ Tạo `data/X_data.npy` (~6MB) + `data/y_data.npy` (~0.1MB), ~19K mẫu unique
+
+> **Gợi ý:** `--random-moves 10` giúp các ván đấu đa dạng (tránh duplicate). Tăng `--depth 2` nếu muốn chất lượng cao hơn.
 
 ### 2. Train trên Google Colab
 

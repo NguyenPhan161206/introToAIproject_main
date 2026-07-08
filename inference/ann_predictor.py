@@ -1,11 +1,11 @@
 import numpy as np
 import onnxruntime as ort
-import joblib
+import joblib # thư viện này dùng để lưu trữ và tải các đối tượng Python, chẳng hạn như bộ scaler đã được huấn luyện. Trong trường hợp này, nó được sử dụng để tải bộ scaler từ tệp pickle (scaler.pkl) để chuẩn hóa dữ liệu đầu vào trước khi đưa vào mô hình ONNX.
 import os
 
 
 class ANNPredictor:
-    def __init__(self, onnx_path=None, scaler_path=None):
+    def __init__(self, onnx_path=None, scaler_path=None): #onnx là đường dẫn đến mô hình ONNX đã được huấn luyện, scaler_path là đường dẫn đến bộ scaler đã được lưu trữ. Nếu không cung cấp, chúng sẽ được đặt mặc định trong thư mục models.
         if onnx_path is None:
             onnx_path = os.path.join(
                 os.path.dirname(__file__), '..', 'models', 'heuristic_predictor.onnx'

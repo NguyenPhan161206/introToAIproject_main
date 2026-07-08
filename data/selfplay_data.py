@@ -10,19 +10,19 @@ from game.alpha_beta import get_best_move
 from game.heuristic import heuristic
 
 
-def generate_training_data(num_games=500, depth=1, random_moves=2, output_dir='.'):
+def generate_training_data(num_games=500, depth=1, random_moves=10, output_dir='.'):
     """
     Generate training data via self-play with Minimax + Alpha-Beta.
 
     Args:
         num_games: Number of self-play games
         depth: Minimax search depth (1=fast but noisy, 2=slower but higher quality)
-        random_moves: Number of initial random moves per game (0=no random)
+        random_moves: Number of initial random moves per game (default 10)
         output_dir: Directory to save .npy files
 
     Note:
-        depth=1: ~0.2s/game, good for quick iteration
-        depth=2: ~11s/game, better data quality — use on Colab for production
+        depth=1: ~0.2s/game, good for quick iteration (19K samples / 2000 games)
+        depth=2: ~11s/game, better data quality (>35K samples / 500 games)
     """
     X_list = []
     y_list = []
@@ -45,10 +45,11 @@ def generate_training_data(num_games=500, depth=1, random_moves=2, output_dir='.
             r, c = move
             board.place_piece(r, c, piece)
 
-            score = heuristic(board, piece)
-            state = board.get_board().flatten().astype(np.float32)
-            X_list.append(state)
-            y_list.append(score)
+            if turn >= random_moves:
+                score = heuristic(board, piece)
+                state = board.get_board().flatten().astype(np.float32)
+                X_list.append(state)
+                y_list.append(score)
 
             if board.check_win(r, c, piece):
                 break
@@ -91,7 +92,7 @@ if __name__ == '__main__':
     parser.add_argument('--num-games', type=int, default=500, help='Number of self-play games')
     parser.add_argument('--depth', type=int, default=1,
                         help='Minimax depth (1=fast, 2=better but slower)')
-    parser.add_argument('--random-moves', type=int, default=2,
+    parser.add_argument('--random-moves', type=int, default=10,
                         help='Number of initial random moves per game (0=no random)')
     args = parser.parse_args()
 

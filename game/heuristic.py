@@ -4,8 +4,8 @@ from .board import ROWS, COLS, WIN_LEN, EMPTY, PLAYER_X, PLAYER_O
 WIN_SCORE = 1_000_000
 
 
-def score_line(line, piece):
-    opponent = PLAYER_O if piece == PLAYER_X else PLAYER_X
+def score_line(line, piece): #line là một danh sách các ô trên bảng, piece là người chơi hiện tại (PLAYER_X hoặc PLAYER_O). Hàm này sẽ tính điểm cho dòng đó dựa trên số lượng quân cờ liên tiếp của người chơi hiện tại và đối thủ.
+    opponent = PLAYER_O if piece == PLAYER_X else PLAYER_X # dòng này là để xác định đối thủ của người chơi hiện tại. Nếu người chơi hiện tại là PLAYER_X, thì đối thủ sẽ là PLAYER_O và ngược lại. Điều này giúp trong việc đánh giá các dòng trên bảng để tính điểm cho cả người chơi và đối thủ.
     score = 0
     i = 0
     while i < len(line):
@@ -63,7 +63,7 @@ def score_line(line, piece):
     return score
 
 
-def score_position(board, piece):
+def score_position(board, piece): # Hàm này tính điểm tổng thể của bảng dựa trên các dòng ngang, dọc và chéo. Nó sử dụng hàm score_line để đánh giá từng dòng và cộng điểm lại để đưa ra một giá trị tổng thể cho vị trí hiện tại của người chơi.
     score = 0
     for r in range(ROWS):
         for c in range(COLS - WIN_LEN + 1):
@@ -84,7 +84,7 @@ def score_position(board, piece):
     return score
 
 
-def heuristic(board_obj, piece):
+def heuristic(board_obj, piece): # Hàm này là hàm heuristic chính, nó nhận vào một đối tượng bảng (board_obj) và người chơi hiện tại (piece). Nó sẽ tính điểm tổng thể của bảng cho người chơi hiện tại và trừ đi điểm tổng thể của đối thủ. Kết quả trả về là một giá trị số, đại diện cho mức độ ưu thế của người chơi hiện tại so với đối thủ.
     if isinstance(board_obj, np.ndarray):
         board = board_obj
     else:
