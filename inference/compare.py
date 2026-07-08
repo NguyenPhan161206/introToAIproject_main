@@ -81,18 +81,20 @@ def run_comparison(num_games=50, depth=3):
             print(f'[WARN] ANN model not loadable: {e}')
             print('[WARN] Only traditional heuristic comparisons will run')
 
+    d = depth
+    d1 = max(1, d - 1)
     if ANN_AVAILABLE:
         comparisons = [
-            ('ANN (d=3) vs Traditional (d=3)', ann_heuristic, heuristic_trad, 3, 3),
-            ('Traditional (d=3) vs ANN (d=3)', heuristic_trad, ann_heuristic, 3, 3),
-            ('ANN (d=2) vs Traditional (d=3)', ann_heuristic, heuristic_trad, 2, 3),
-            ('ANN (d=3) vs Traditional (d=2)', ann_heuristic, heuristic_trad, 3, 2),
-            ('ANN (d=3) vs ANN (d=2)', ann_heuristic, ann_heuristic, 3, 2),
+            (f'ANN (d={d}) vs Traditional (d={d})', ann_heuristic, heuristic_trad, d, d),
+            (f'Traditional (d={d}) vs ANN (d={d})', heuristic_trad, ann_heuristic, d, d),
+            (f'ANN (d={d1}) vs Traditional (d={d})', ann_heuristic, heuristic_trad, d1, d),
+            (f'ANN (d={d}) vs Traditional (d={d1})', ann_heuristic, heuristic_trad, d, d1),
+            (f'ANN (d={d}) vs ANN (d={d1})', ann_heuristic, ann_heuristic, d, d1),
         ]
     else:
         comparisons = [
-            ('Traditional (d=3) vs Traditional (d=3)', heuristic_trad, heuristic_trad, 3, 3),
-            ('Traditional (d=2) vs Traditional (d=3)', heuristic_trad, heuristic_trad, 2, 3),
+            (f'Traditional (d={d}) vs Traditional (d={d})', heuristic_trad, heuristic_trad, d, d),
+            (f'Traditional (d={d1}) vs Traditional (d={d})', heuristic_trad, heuristic_trad, d1, d),
         ]
 
     for name, h_x, h_o, d_x, d_o in comparisons:
