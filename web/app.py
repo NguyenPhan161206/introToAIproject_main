@@ -1,5 +1,6 @@
 import sys
-import os
+import os # os là dung de thao tác với hệ thống tệp và đường dẫn, ví dụ như xác định vị trí của các tệp mô hình và scaler.
+# scaler là một công cụ chuẩn hóa dữ liệu, giúp đưa các giá trị đầu vào về cùng một thang đo, điều này rất quan trọng khi sử dụng mô hình học máy. Trong trường hợp này, scaler được sử dụng để chuẩn hóa dữ liệu đầu vào trước khi đưa vào mô hình ONNX.
 import time
 import threading
 import numpy as np
@@ -18,12 +19,13 @@ game_over = False
 winner = None
 mode = 'pvai_trad'
 board_lock = threading.Lock()
-
 ann_predictor = None
 ann_heuristic_fn = None
+ann_error = None
+
 
 def load_ann():
-    global ann_predictor, ann_heuristic_fn
+    global ann_predictor, ann_heuristic_fn, ann_error
     try:
         from inference.ann_predictor import ANNPredictor, ann_heuristic_wrapper
         ann_predictor = ANNPredictor()
@@ -31,6 +33,7 @@ def load_ann():
         print('[Web] ANN model loaded successfully')
         return True
     except Exception as e:
+        ann_error = str(e)
         print(f'[Web] Could not load ANN model: {e}')
         print('[Web] Falling back to traditional heuristic only')
         return False
@@ -94,7 +97,7 @@ def board_response(last_move=None, thinking_time_ms=None):
 
 @app.route('/')
 def index():
-    return render_template('index.html', ann_available=ANN_AVAILABLE)
+    return render_template('index.html', ann_available=ANN_AVAILABLE, ann_error=ann_error)
 
 
 @app.route('/api/state', methods=['GET'])
@@ -104,12 +107,12 @@ def get_state():
 
 @app.route('/api/mode', methods=['GET'])
 def get_mode():
-    return jsonify({'mode': mode, 'ann_available': ANN_AVAILABLE})
+    return jsonify({'mode': mode, 'ann_available': ANN_AVAILABLE, 'ann_error': ann_error})
 
 
 @app.route('/api/set_mode', methods=['POST'])
 def set_mode():
-    global mode, game_over
+    global mode, game_over, winner, board
     with board_lock:
         data = request.json
         if not data or 'mode' not in data:
@@ -120,6 +123,9 @@ def set_mode():
         if new_mode == 'pvai_ann' and not ANN_AVAILABLE:
             return jsonify({'error': 'ANN model not available'}), 400
         mode = new_mode
+        board = Board()
+        game_over = False
+        winner = None
         return jsonify({'status': 'ok', 'mode': mode})
 
 
@@ -255,4 +261,4 @@ def ai_vs_ai():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, use_reloader=False, host='0.0.0.0', port=5000)

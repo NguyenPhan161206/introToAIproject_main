@@ -9,19 +9,26 @@ Gomoku (Caro) 9×9 với AI dùng Minimax + Alpha-Beta, cho phép chọn giữa 
 
 ## Cài đặt & Chạy
 
+### Lần đầu — Tạo môi trường
+
 ```bash
 # 1. Tạo virtual environment (Ubuntu 24+ bắt buộc)
 python3 -m venv venv
+
+# 2. Kích hoạt và cài thư viện
 source venv/bin/activate
-
-# 2. Cài thư viện
 pip install -r requirements.txt
+```
 
-# 3. Chạy web app
-python3 web/app.py
+### Chạy (mọi lúc sau đó)
+
+```bash
+./run.sh
 ```
 
 Mở trình duyệt tại **http://localhost:5000**
+
+> `run.sh` tự động dọn server cũ, cài thiếu nếu cần, và dùng đúng Python từ `venv/`.
 
 ## Chế độ chơi
 
@@ -66,6 +73,7 @@ Khởi động lại server → nút **PvAI (ANN)** sẽ khả dụng.
 
 ```
 gomoku9x9_ai/
+├── run.sh           # Launch script (dùng 1 lệnh để chạy server)
 ├── data/            # Dữ liệu training + script sinh dữ liệu
 ├── game/            # Board, heuristic, alpha-beta
 ├── inference/       # ANN predictor (ONNX Runtime)
@@ -77,5 +85,6 @@ gomoku9x9_ai/
 ## Lưu ý
 
 - Server chạy ở `http://0.0.0.0:5000`
+- Nếu port 5000 đã được dùng, `run.sh` sẽ tự động giải phóng
 - Nếu không có model ANN, app tự động fallback sang traditional heuristic
-- Luôn chạy `source venv/bin/activate` trước khi dùng Python
+- Sử dụng `./run.sh` (không cần kích hoạt venv thủ công)

@@ -12,6 +12,7 @@ Both AIs use **Minimax + Alpha-Beta pruning** for move search. The ANN is a stud
 
 ```
 gomoku9x9_ai/
+├── run.sh               # Launch script (1 command to start server reliably)
 ├── data/                # Training data (X_data.npy, y_data.npy) + generation script
 ├── game/                # Core game logic
 │   ├── board.py         # Board state (9×9), move validation, win detection

@@ -473,12 +473,17 @@
                     <h3>Trạng thái</h3>
                     <div class="game-status playing" id="gameStatus">Đang chơi — Lượt của bạn</div>
                     <div class="error-message" id="errorMessage"></div>
+                    {% if not ann_available and ann_error %}
+                    <div style="padding:8px 12px; margin-top:8px; background:rgba(233,69,96,0.15); border:1px solid rgba(233,69,96,0.3); border-radius:6px; color:#e94560; font-size:0.8em; text-align:center;">
+                        ANN không khả dụng: {{ ann_error }}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="panel-box">
                     <h3>Chế độ chơi</h3>
                     <div class="mode-selector">
-                        <button class="mode-btn active" id="modePvaiAnn" {% if not ann_available %}disabled{% endif %}>PvAI (ANN)</button>
+                        <button class="mode-btn" id="modePvaiAnn" {% if not ann_available %}disabled{% endif %}>PvAI (ANN)</button>
                         <button class="mode-btn" id="modePvaiTrad">PvAI (Trad)</button>
                         <button class="mode-btn" id="modePvp">PvP</button>
                     </div>
